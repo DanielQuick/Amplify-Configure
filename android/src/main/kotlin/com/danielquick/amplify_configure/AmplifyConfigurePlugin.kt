@@ -18,13 +18,6 @@ public class AmplifyConfigurePlugin: FlutterPlugin, MethodCallHandler {
   private lateinit var channel : MethodChannel
 
   override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
-    try {
-      Amplify.configure(flutterPluginBinding.getApplicationContext())
-      Log.i("MyAmplifyApp", "Initialized Amplify")
-    } catch (error: AmplifyException) {
-      Log.e("MyAmplifyApp", "Could not initialize Amplify", error)
-    }
-
     channel = MethodChannel(flutterPluginBinding.getFlutterEngine().getDartExecutor(), "amplify_configure")
     channel.setMethodCallHandler(this);
   }
@@ -41,19 +34,23 @@ public class AmplifyConfigurePlugin: FlutterPlugin, MethodCallHandler {
   companion object {
     @JvmStatic
     fun registerWith(registrar: Registrar) {
-      try {
-        Amplify.configure(registrar.context())
-        Log.i("MyAmplifyApp", "Initialized Amplify")
-      } catch (error: AmplifyException) {
-        Log.e("MyAmplifyApp", "Could not initialize Amplify", error)
-      }
-
       val channel = MethodChannel(registrar.messenger(), "amplify_configure")
       channel.setMethodCallHandler(AmplifyConfigurePlugin())
     }
   }
 
-  override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {}
+  override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
+    if (call.method.equals("initialize")) {
+      try {
+        Amplify.configure(registrar.context())
+        result.success(true)
+      } catch (error: AmplifyException) {
+        result.error("0", "Could not initialize Amplify", error)
+      }
+    } else {
+      result.notImplemented()
+    }
+  }
 
   override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
     channel.setMethodCallHandler(null)
