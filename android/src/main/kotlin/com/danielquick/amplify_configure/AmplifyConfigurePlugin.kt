@@ -9,6 +9,11 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import io.flutter.plugin.common.PluginRegistry.Registrar
 
+import android.content.Context
+
+import com.amplifyframework.core.Amplify;
+import com.amplifyframework.AmplifyException;
+
 /** AmplifyConfigurePlugin */
 public class AmplifyConfigurePlugin: FlutterPlugin, MethodCallHandler {
   /// The MethodChannel that will the communication between Flutter and native Android
@@ -16,9 +21,11 @@ public class AmplifyConfigurePlugin: FlutterPlugin, MethodCallHandler {
   /// This local reference serves to register the plugin with the Flutter Engine and unregister it
   /// when the Flutter Engine is detached from the Activity
   private lateinit var channel : MethodChannel
+  private lateinit var context : Context
 
   override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
-    channel = MethodChannel(flutterPluginBinding.getFlutterEngine().getDartExecutor(), "amplify_configure")
+    context = flutterPluginBinding.getApplicationContext()
+    val channel = MethodChannel(flutterPluginBinding.getFlutterEngine().getDartExecutor(), "amplify_configure")
     channel.setMethodCallHandler(this);
   }
 
@@ -34,6 +41,7 @@ public class AmplifyConfigurePlugin: FlutterPlugin, MethodCallHandler {
   companion object {
     @JvmStatic
     fun registerWith(registrar: Registrar) {
+      // context = registrar.context()
       val channel = MethodChannel(registrar.messenger(), "amplify_configure")
       channel.setMethodCallHandler(AmplifyConfigurePlugin())
     }
@@ -42,10 +50,10 @@ public class AmplifyConfigurePlugin: FlutterPlugin, MethodCallHandler {
   override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
     if (call.method.equals("initialize")) {
       try {
-        Amplify.configure(registrar.context())
+        Amplify.configure(context)
         result.success(true)
       } catch (error: AmplifyException) {
-        result.error("0", "Could not initialize Amplify", error)
+        result.error("Could not initialize Amplify", null, error)
       }
     } else {
       result.notImplemented()

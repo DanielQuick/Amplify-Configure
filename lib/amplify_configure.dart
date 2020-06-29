@@ -1,18 +1,18 @@
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class AmplifyConfigure {
   static const MethodChannel _channel =
       const MethodChannel('amplify_configure');
 
-  static Future<bool> initialize() async {
+  static Future<void> initialize({Function(FlutterError) onError}) async {
     try {
-      var result = await _channel.invokeMethod("initialize");
-      return result;
+      await _channel.invokeMethod("initialize");
+      print("successfully configured Amplify");
     } catch (e) {
-      print(e);
-      return false;
+      if (onError != null) onError(e);
     }
   }
 }
