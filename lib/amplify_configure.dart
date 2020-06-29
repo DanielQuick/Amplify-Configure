@@ -7,11 +7,12 @@ class AmplifyConfigure {
   static const MethodChannel _channel =
       const MethodChannel('amplify_configure');
 
-  static Future<void> initialize({Function(FlutterError) onError}) async {
+  static Future<void> initialize({Function(Error) onError}) async {
     try {
       await _channel.invokeMethod("initialize");
       print("successfully configured Amplify");
     } catch (e) {
+      print(e);
       if (onError != null) onError(e);
     }
   }
