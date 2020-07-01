@@ -1,5 +1,6 @@
 import Flutter
 import UIKit
+import Amplify
 
 public class SwiftAmplifyConfigurePlugin: NSObject, FlutterPlugin {
   public static func register(with registrar: FlutterPluginRegistrar) {
@@ -9,6 +10,18 @@ public class SwiftAmplifyConfigurePlugin: NSObject, FlutterPlugin {
   }
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-    result("iOS " + UIDevice.current.systemVersion)
+    if (call.method == "initialize") {
+      do {
+        try Amplify.configure()
+        print("Amplify configured with Auth and Analytics plugins")
+        result(true)
+      } catch {
+        result(FlutterError(code: "Failed to configure Amplify",
+                        message: "Empty Message",
+                        details: (error as! AmplifyError).errorDescription))
+      }
+    } else {
+      result(FlutterMethodNotImplemented)
+    }
   }
 }
