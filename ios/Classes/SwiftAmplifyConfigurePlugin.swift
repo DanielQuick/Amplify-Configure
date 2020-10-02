@@ -13,7 +13,6 @@ public class SwiftAmplifyConfigurePlugin: NSObject, FlutterPlugin {
     if (call.method == "initialize") {
       do {
         try Amplify.configure()
-        print("Amplify configured with Auth and Analytics plugins")
         result(true)
       } catch {
         result(FlutterError(code: "Failed to configure Amplify",
